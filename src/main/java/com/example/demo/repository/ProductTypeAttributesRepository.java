@@ -6,6 +6,7 @@ import com.example.demo.model.AttributeTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,4 +30,6 @@ public interface ProductTypeAttributesRepository extends JpaRepository<ProductTy
 
     // Метод для поиска всех атрибутов по имени атрибута
     List<ProductTypeAttributes> findByAttributeType_attributeName(String attributeName);
+
+    Collection<Object> findAttributesByProductType(ProductTypes productType);
 }

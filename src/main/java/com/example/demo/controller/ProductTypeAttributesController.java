@@ -6,6 +6,7 @@ import com.example.demo.model.ProductTypes;
 import com.example.demo.repository.AttributeTypesRepository;
 import com.example.demo.repository.ProductTypesRepository;
 import com.example.demo.repository.ProductTypeAttributesRepository;
+import com.example.demo.service.AttributeDTO;
 import com.example.demo.service.ProductTypeAttributesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,9 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("api/ProductTypeAttributes")
+@RequestMapping("/api/ProductTypeAttributes") // Добавил слеш в начале
 public class ProductTypeAttributesController {
 
     @Autowired
@@ -25,7 +27,7 @@ public class ProductTypeAttributesController {
     private ProductTypesRepository productTypesRepository;
 
     @Autowired
-    private ProductTypeAttributesRepository ProductTypeAttributesRepository;
+    private ProductTypeAttributesRepository productTypeAttributesRepository; // Переименовано
 
     @Autowired
     private AttributeTypesRepository attributeTypesRepository;
@@ -52,14 +54,18 @@ public class ProductTypeAttributesController {
 
     // Получить список атрибутов по категории (typeName)
     @GetMapping("/attributes-by-category")
-    public ResponseEntity<List<String>> getAttributesByCategory(@RequestParam String typeName) {
-        // Находим тип товара по имени
+    public ResponseEntity<List<AttributeDTO>> getAttributesByCategory(@RequestParam String typeName) {
         ProductTypes productType = productTypesRepository.findByTypeName(typeName)
                 .orElseThrow(() -> new RuntimeException("Product type not found"));
 
-        // Получаем только имена атрибутов для этого типа товара
-        List<String> attributeNames = ProductTypeAttributesRepository.findAttributeNamesByProductType(productType);
+        // Получаем список ProductTypeAttributes по productType
+        List<ProductTypeAttributes> productTypeAttributes = productTypeAttributesRepository.findByProductType(productType);
 
-        return ResponseEntity.ok(attributeNames);
+        // Преобразуем в DTO
+        List<AttributeDTO> attributes = productTypeAttributes.stream()
+                .map(attribute -> new AttributeDTO(attribute.getAttributeType().getAttributeTypeId(), attribute.getAttributeType().getAttributeName()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(attributes);
     }
 }

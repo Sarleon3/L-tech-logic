@@ -83,9 +83,12 @@ public class ProductsController {
     }
 
     // GET: Получить продукт по ID
-    @GetMapping("/{id}")
-    public Products getProductById(@PathVariable int id) {
-        return productsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+    @GetMapping("/batch")
+    public List<Products> getProductsByIds(@RequestParam List<Integer> ids) {
+        List<Products> products = productsRepository.findAllById(ids);
+        if (products.isEmpty()) {
+            throw new RuntimeException("No products found for the given IDs: " + ids);
+        }
+        return products;
     }
 }
