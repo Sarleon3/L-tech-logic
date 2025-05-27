@@ -20,7 +20,7 @@ public class Products {
     @Column(name = "stockQuantity", nullable = false)
     private int stockQuantity;
 
-    @Column(name = "description", length = 1000)
+    @Column(name = "description", length = 8000)
     private String description;
 
     @ElementCollection
