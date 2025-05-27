@@ -28,4 +28,8 @@ public class AttributeTypesService {
     public Optional<AttributeTypes> getAttributeByName(String name) {
         return attributeTypesRepository.findByAttributeName(name);
     }
+
+    public List<AttributeTypes> addAllAttributes(List<AttributeTypes> attributeTypesList) {
+        return attributeTypesRepository.saveAll(attributeTypesList);
+    }
 }

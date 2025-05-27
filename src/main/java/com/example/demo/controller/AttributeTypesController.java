@@ -29,7 +29,7 @@ public class AttributeTypesController {
 
     // Добавить новый атрибут
     @PostMapping("/add")
-    public AttributeTypes addAttribute(@RequestBody AttributeTypes attributeTypes) {
-        return attributeTypesService.addAttribute(attributeTypes);
+    public List<AttributeTypes> addAttribute(@RequestBody List<AttributeTypes> attributeTypesList) {
+        return attributeTypesService.addAllAttributes(attributeTypesList);
     }
 }
