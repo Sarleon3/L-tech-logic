@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -44,21 +46,16 @@ public class ProductIdGeneratorService {
         }
     }
 
-    // Загружаем число π из файла
+    // Загружаем число π из файла из classpath
     private void loadPiFromFile(String filePath) {
-        StringBuilder piBuilder = new StringBuilder();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                piBuilder.append(line.trim());
-            }
+        try {
+            ClassPathResource resource = new ClassPathResource(filePath);
+            byte[] fileData = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            PI_DIGITS = new String(fileData).trim();
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Ошибка при загрузке числа π из файла.");
+            throw new RuntimeException("Ошибка при загрузке числа π из файла: " + e.getMessage());
         }
-
-        PI_DIGITS = piBuilder.toString(); // Присваиваем загруженные цифры
     }
 
     // Генерация одного уникального числа
@@ -115,7 +112,8 @@ public class ProductIdGeneratorService {
     }
 
     public void initializeGenerator() {
-        loadOrCreateExceptionsFile("I:\\исключения.txt");
-        loadPiFromFile("C:\\Users\\алексей\\Downloads\\10m.txt");
+        // Изменяем путь к файлу исключений на относительный или ресурсный, если он тоже абсолютный
+        // loadOrCreateExceptionsFile("I:\\исключения.txt"); // Проверьте этот путь тоже!
+        loadPiFromFile("10m.txt"); // Читаем из classpath
     }
 }
