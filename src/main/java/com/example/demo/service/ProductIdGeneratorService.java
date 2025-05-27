@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.repository.ProductsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -8,6 +10,9 @@ import java.util.HashSet;
 
 @Service
 public class ProductIdGeneratorService {
+
+    @Autowired
+    private ProductsRepository productsRepository;
 
     private static String PI_DIGITS;  // Число π
     private static int currentIndex = 0;  // Индекс для текущего положения окна
@@ -74,6 +79,12 @@ public class ProductIdGeneratorService {
         }
 
         String generatedNumber = piFragment.toString();
+
+        // Проверяем, существует ли ID в базе данных
+        if (productsRepository.existsById(Integer.parseInt(generatedNumber))) {
+            currentIndex++;
+            return generateUniqueNumber(); // Рекурсивно вызываем метод для генерации нового числа
+        }
 
         if (uniqueNumbers.contains(generatedNumber)) {
             duplicateNumbers.add(generatedNumber);

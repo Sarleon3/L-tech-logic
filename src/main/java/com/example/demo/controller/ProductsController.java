@@ -9,8 +9,11 @@ import com.example.demo.service.ProductIdGeneratorService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.ProductTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,32 +51,50 @@ public class ProductsController {
                     product.getProductType().getProductTypeId(),
                     product.getProductType().getTypeName()
             );
+
+            List<String> images = product.getImages();
+
             return new ProductDTO(
                     product.getProductId(),
                     product.getProductName(),
                     product.getPrice(),
-                    product.getRating(),
-                    product.getReview(),
-                    product.getImage(),
-                    productTypeDTO
+                    product.getStockQuantity(), // передаем количество товара
+                    images,
+                    productTypeDTO,
+                    product.getDescription()
             );
         }).collect(Collectors.toList());
     }
 
-    // POST: Добавление нового товара
+
+
     @PostMapping("/add")
-    public Products addProduct(@RequestBody Products product) {
-        // Инициализация генератора (если необходимо)
-        productIdGeneratorService.initializeGenerator();
+    public ResponseEntity<?> addProduct(@RequestBody Products product) {
+        try {
+            productIdGeneratorService.initializeGenerator();
 
-        // Генерация уникального ID для продукта
-        String uniqueId = productIdGeneratorService.generateUniqueNumber();
-        product.setProductId(Integer.parseInt(uniqueId));
+            String uniqueId = productIdGeneratorService.generateUniqueNumber();
+            if (uniqueId == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Не удалось сгенерировать уникальный ID для продукта");
+            }
 
+            Integer productId = Integer.parseInt(uniqueId);
+            product.setProductId(productId);
 
-        // Использование merge вместо save
-        return productsRepository.save(product);
+            Products savedProduct = productsRepository.saveAndFlush(product);
+            return ResponseEntity.ok(savedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Ошибка при добавлении продукта: " + e.getMessage());
+        }
     }
+
+
+
+
+
+
 
 
     // GET: Получить список всех продуктов по категории
