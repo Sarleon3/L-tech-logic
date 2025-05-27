@@ -16,7 +16,7 @@ public class AttributeTypesController {
     private AttributeTypesService attributeTypesService;
 
     // Получить все атрибуты
-    @GetMapping("/")
+    @GetMapping("/all")
     public List<AttributeTypes> getAllAttributes() {
         return attributeTypesService.getAllAttributes();
     }
